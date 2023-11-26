@@ -1,0 +1,10 @@
+A large language model (LLM) is a type of language model notable for its ability to achieve general-purpose language understanding and generation. LLMs acquire these abilities by using massive amounts of data to learn billions of parameters during training and consuming large computational resources during their training and operation.[1] LLMs are artificial neural networks (mainly transformers[2]) and are (pre-)trained using self-supervised learning and semi-supervised learning.
+
+As autoregressive language models, they work by taking an input text and repeatedly predicting the next token or word.[3] Up to 2020, fine tuning was the only way a model could be adapted to be able to accomplish specific tasks. Larger sized models, such as GPT-3, however, can be prompt-engineered to achieve similar results.[4] They are thought to acquire embodied knowledge about syntax, semantics and "ontology" inherent in human language corpora, but also inaccuracies and biases present in the corpora.[5]
+
+Notable examples include OpenAI's GPT models (e.g., GPT-3.5 and GPT-4, used in ChatGPT), Google's PaLM (used in Bard), and Meta's LLaMa, as well as BLOOM, Ernie 3.0 Titan, and Anthropic's Claude 2.
+
+
+
+Neom is a new urban area planned by the Kingdom of Saudi Arabia to be built in its northwestern Tabuk Province. The site is north of the Red Sea, east of Egypt across the Gulf of Aqaba and south of Jordan. The total planned area of Neom is 26,500 km². Wikipedia
+
