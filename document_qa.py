@@ -16,7 +16,9 @@ from langchain.document_loaders import TextLoader
 from langchain_llm import *
 
 embedding_function = SentenceTransformerEmbeddings(
-	model_name="all-MiniLM-L6-v2")
+	model_name="all-mpnet-base-v2", model_kwargs= {"device": "cuda:2"})
+
+prompt = hub.pull("rlm/rag-prompt")
 
 ###
 
@@ -27,6 +29,7 @@ def format_docs(docs):
 
 def build_rag_chain_from_doc(
 	document_path,
+	text_name
 	):
 
 
@@ -50,13 +53,29 @@ def build_rag_chain_from_doc(
 	## embedding
 
 	print(f"embedding the document {document_path}")
+	try:
+		vectorstore = Chroma.from_documents(
+			documents=splits, 
+			embedding=embedding_function,
+			persist_directory= f"./chroma_db/{text_name}"
+			)
+		vectorstore.persist()
+		return "Success"
+	except Exception as e:
+		logger.info('Create and save chromadb FAIL!')
+		return "Fail"
 
-	vectorstore = Chroma.from_documents(
-		documents=splits, 
-		embedding=embedding_function,
-		)
+def answer_from_doc(text_name, question):
+	try:
+		vectorstore = Chroma(persist_directory=f"./chroma_db/{text_name}", embedding_function=embedding_function)
+	except:
+		logger.info(f"Chromadb {text_name} not exist | RECREATing")
+		save_folder = 'uploaded'
+		save_path = os.path.join(save_folder, text_name+".txt")
+		vectorstore = build_rag_chain_from_doc(save_path, text_name)
 
 	retriever = vectorstore.as_retriever()
+	print(retriever)
 
 	## llm
 
@@ -68,8 +87,6 @@ def build_rag_chain_from_doc(
 
 	print(f"buidling the RAG chain.")
 
-	prompt = hub.pull("rlm/rag-prompt")
-
 	rag_chain = (
 		{"context": retriever | format_docs, "question": RunnablePassthrough()}
 		| prompt
@@ -77,7 +94,8 @@ def build_rag_chain_from_doc(
 		| StrOutputParser()
 	)
 
-	return rag_chain
+	response = rag_chain.invoke(question)
+	return response
 
 
 
