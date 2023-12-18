@@ -95,7 +95,7 @@ template = {
           },
           "example": "Visual pollution is ......."
         },
-        "text_name": {
+        "filename": {
           "items": {
             "type": "string"
           },
@@ -106,13 +106,19 @@ template = {
     "input_text": {
       "type": "object",
       "properties": {
-        "save_response": {
+        "response": {
           "items": {
             "type": "string"
           },
           "example": "Save success!"
         },
-        "use_time": {
+        "status": {
+          "items": {
+            "type": "string"
+          },
+          "example": "Success!"
+        },
+        "running_time": {
           "items": {
             "type": "number"
           },
@@ -129,7 +135,7 @@ template = {
           },
           "example": "What is Visual pollution?"
         },
-        "text_name": {
+        "filename": {
           "items": {
             "type": "string"
           },
@@ -146,7 +152,13 @@ template = {
           },
           "example": "Visual pollution is ......"
         },
-        "use_time": {
+        "status": {
+          "items": {
+            "type": "string"
+          },
+          "example": "Success!"
+        },
+        "running_time": {
           "items": {
             "type": "number"
           },

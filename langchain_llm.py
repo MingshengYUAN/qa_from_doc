@@ -19,9 +19,10 @@ class CustomLLM(LLM):
 		if stop is not None:
 			raise ValueError("stop kwargs are not permitted.")
 		response = requests.post(
-			'http://37.224.68.132:24267/tonomus_llm/mistral_7b_instruct_generate',
-			json = {"prompt":prompt}
-			).json()["response"]
+			# 'http://37.224.68.132:24267/tonomus_llm/mistral_7b_instruct_generate',
+			'http://37.224.68.132:27090/generate',
+			json = {"prompt":prompt, "stream": False, "max_tokens":512, "temperature":0}
+			).json()["response"][0]
 		return response
 	@property
 	def _identifying_params(self) -> Mapping[str, Any]:
