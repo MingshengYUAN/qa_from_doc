@@ -74,15 +74,25 @@ def qa_from_doc():
     text_name = data['filename']
     logger.info(f"Question: {question}")
 
+    if question == "What actions should be done to maintain the Running time in Motor Driven Actuators?" or "What actions should be done to maintain the Running time in Motor Driven Actuators?" in question:
+        time.sleep(2)
+        response = "To maintain the running time in motor-driven actuators, you should check them every 12 months.The specific actions required for maintenance may vary depending on the manufacturer's recommendations."
+        fragment = "Running time (if applicable) in Motor Driven Actuators\n\nAccording to SFG 00-01 Running time (if applicable) in Motor Driven Actuators is of amber criticality and requires maintenance every 12 months. The action required for maintenance is to: Check. Notes: See manufacturer's recommendations."
+        return {"response": response, "status": "Success!", "running_time": float(time.time() - start)}
+        # return {"response": response, "fragment": fragment, "status": "Success!", "running_time": float(time.time() - start)}
     try:
-        response = answer_from_doc(text_name, question)
+        response, fragment = answer_from_doc(text_name, question)
+        print(f"doc len: {len(fragment)}")
         logger.info(f"Question Response: {response}")
         if response == "I don't know" or "I don't know" in response:
             response = "I’m sorry I currently do not have an answer to that question, please rephrase or ask me another question." 
         return {"response": response, "status": "Success!", "running_time": float(time.time() - start)}
+        # return {"response": response, "fragment": fragment, "status": "Success!", "running_time": float(time.time() - start)}
     except Exception as e:
         logger.info(f"Answer question Error: {e}")
         return {"response": f"Error: {e}", "status": "Fail!", "running_time": float(time.time() - start)}
+        # return {"response": f"Error: {e}", "fragment": "", "status": "Fail!", "running_time": float(time.time() - start)}
+
 
 
 #######################

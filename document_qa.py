@@ -16,6 +16,7 @@ from langchain.document_loaders import TextLoader
 from langchain_llm import *
 from log_info import logger
 
+a = 1
 chroma = Chroma()
 
 embedding_function = SentenceTransformerEmbeddings(
@@ -30,22 +31,23 @@ def format_docs(docs):
 
 ###
 
-def build_share():
-	loader_share = TextLoader('./uploaded/share.txt')
-	docs_share = loader_share.load()
-	text_splitter = RecursiveCharacterTextSplitter(
-		chunk_size=1000, 
-		chunk_overlap=200)
+# def build_share():
+# 	loader_share = TextLoader('./uploaded/share.txt')
+# 	docs_share = loader_share.load()
+# 	text_splitter = RecursiveCharacterTextSplitter(
+# 		chunk_size=1000, 
+# 		chunk_overlap=200)
 	
-	splits_share = text_splitter.split_documents(docs_share)
-	vectorstore_share = chroma.from_documents(
-			documents=splits_share, 
-			embedding=embedding_function,
-			persist_directory= f"./chroma_db/share")
+# 	splits_share = text_splitter.split_documents(docs_share)
+# 	vectorstore_share = chroma.from_documents(
+# 			documents=splits_share, 
+# 			embedding=embedding_function,
+# 			persist_directory= f"./chroma_db/share")
 
-	vectorstore_share.persist()
-	logger.info('Add to shared chromadb Success!')
-	return vectorstore_share
+# 	vectorstore_share.persist()
+# 	logger.info('Add to shared chromadb Success!')
+# 	return vectorstore_share
+
 def build_rag_chain_from_doc(
 	document_path,
 	text_name,
@@ -65,7 +67,7 @@ def build_rag_chain_from_doc(
 	print(f"spliting the document {document_path}")
 
 	text_splitter = RecursiveCharacterTextSplitter(
-		chunk_size=1000, 
+		chunk_size=3000, 
 		chunk_overlap=200)
 	splits = text_splitter.split_documents(docs)
 	
@@ -115,13 +117,14 @@ def build_rag_chain_from_doc(
 
 def answer_from_doc(text_name, question):
 	# try:
+	
 	logger.info(f"Text name answer part: {text_name}")
 	if text_name == 'share':
 		loader_share = TextLoader('./uploaded/share.txt')
 		docs_share = loader_share.load()
 		text_splitter = RecursiveCharacterTextSplitter(
 			chunk_size=1000, 
-			chunk_overlap=200)
+			chunk_overlap=400)
 		
 		splits_share = text_splitter.split_documents(docs_share)
 		vectorstore = chroma.from_documents(
@@ -136,8 +139,8 @@ def answer_from_doc(text_name, question):
 	# 	save_folder = 'uploaded'
 	# 	save_path = os.path.join(save_folder, text_name+".txt")
 	# 	vectorstore = build_rag_chain_from_doc(save_path, text_name)
-
 	retriever = vectorstore.as_retriever()
+	
 	print(retriever)
 
 	## llm
@@ -158,7 +161,15 @@ def answer_from_doc(text_name, question):
 	)
 
 	response = rag_chain.invoke(question)
-	return response
+	if question in response:
+		response = response.replace(question, '')
+	if response != "I don't know" or "I don't know" not in response:
+		relat_doc = retriever.get_relevant_documents(question)[0].page_content
+		# print(relat_doc[0].page_content)
+	else:
+		relat_doc = ''
+
+	return response, relat_doc
 
 
 

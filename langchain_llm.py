@@ -21,7 +21,7 @@ class CustomLLM(LLM):
 		response = requests.post(
 			# 'http://37.224.68.132:24267/tonomus_llm/mistral_7b_instruct_generate',
 			'http://37.224.68.132:27090/generate',
-			json = {"prompt":prompt, "stream": False, "max_tokens":512, "temperature":0}
+			json = {"prompt":prompt, "stream": False, "max_tokens":1024, "temperature":0}
 			).json()["response"][0]
 		return response
 	@property
