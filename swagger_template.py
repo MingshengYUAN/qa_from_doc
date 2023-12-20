@@ -152,6 +152,24 @@ template = {
           },
           "example": "Visual pollution is ......"
         },
+        "fragment": {
+          "items": {
+            "type": "string"
+          },
+          "example": "Doc: Visual pollution is ......"
+        },
+        "score": {
+          "items": {
+            "type": "float"
+          },
+          "example": 0.897364564
+        },
+        "document_name": {
+          "items": {
+            "type": "string"
+          },
+          "example": "xxx.txt"
+        },
         "status": {
           "items": {
             "type": "string"

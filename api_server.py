@@ -12,6 +12,7 @@ from swagger_template import template
 from flask_session import *
 from datetime import timedelta
 
+
 #############
 
 app = Flask(__name__)
@@ -74,18 +75,25 @@ def qa_from_doc():
     text_name = data['filename']
     logger.info(f"Question: {question}")
 
-    try:
-        response = answer_from_doc(text_name, question)
-        logger.info(f"Question Response: {response}")
-        if response == "I don't know" or "I don't know" in response:
-            response = "I’m sorry I currently do not have an answer to that question, please rephrase or ask me another question." 
-        return {"response": response, "status": "Success!", "running_time": float(time.time() - start)}
-    except Exception as e:
-        logger.info(f"Answer question Error: {e}")
-        return {"response": f"Error: {e}", "status": "Fail!", "running_time": float(time.time() - start)}
+    # if question == "What actions should be done to maintain the Running time in Motor Driven Actuators?" or "What actions should be done to maintain the Running time in Motor Driven Actuators?" in question:
+    #     time.sleep(2)
+    #     response = "To maintain the running time in motor-driven actuators, you should check them every 12 months.The specific actions required for maintenance may vary depending on the manufacturer's recommendations."
+    #     fragment = "Running time (if applicable) in Motor Driven Actuators\n\nAccording to SFG 00-01 Running time (if applicable) in Motor Driven Actuators is of amber criticality and requires maintenance every 12 months. The action required for maintenance is to: Check. Notes: See manufacturer's recommendations."
+    #     return {"response": response, "fragment": fragment, "score": 0.98564369 "status": "Success!", "running_time": float(time.time() - start)}
+
+    # try:
+    response, fragment, score, document_name = answer_from_doc(text_name, question)
+    logger.info(f"Question Response: {response}")
+    if response == "I don't know" or "I don't know" in response:
+        response = "I’m sorry I currently do not have an answer to that question, please rephrase or ask me another question." 
+        score = 0.0
+    return {"response": response, "fragment": fragment, "score":score, "document_name": document_name , "status": "Success!", "running_time": float(time.time() - start)}
+    # except Exception as e:
+    #     logger.info(f"Answer question Error: {e}")
+    #     return {"response": f"Error: {e}", "fragment": "", "status": "Fail!", "running_time": float(time.time() - start)}
 
 
 #######################
 
 if __name__=="__main__":
-    app.run(port=3273, host="0.0.0.0", debug=False)
+    app.run(port=3274, host="0.0.0.0", debug=False)
