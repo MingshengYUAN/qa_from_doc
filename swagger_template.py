@@ -99,7 +99,7 @@ template = {
           "items": {
             "type": "string"
           },
-          "example": "Qh2Xhknhg&i8"
+          "example": "Qh2Xhknhgi8"
         },
       }
     },
@@ -139,7 +139,13 @@ template = {
           "items": {
             "type": "string"
           },
-          "example": "Qh2Xhknhg&i8"
+          "example": "Qh2Xhknhgi8"
+        },
+        "messages": {
+          "items": {
+            "type": "list"
+          },
+          "example": []
         },
       }
     },
