@@ -1,26 +1,45 @@
 import time
-from log_info import logger
-import numpy as np
-import requests
 import re 
+import os
+import requests
+import logging
+import argparse
+import configparser
+import numpy as np
+from datetime import timedelta
 from flask import Flask, request
 from flasgger import Swagger
 from flasgger.utils import swag_from
-import os
-from document_qa import build_rag_chain_from_doc, answer_from_doc
 from swagger_template import template
 from flask_session import *
-from datetime import timedelta
+from log_info import *
+from document_qa_new import build_rag_chain_from_text, answer_from_doc
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--port', default=3010)
+parser.add_argument('--config_path', default='./conf/config.ini')
+parser.add_argument('--log_path', default='./log/qa_from_doc.log')
+args = parser.parse_args()
 
-#############
+config_path = args.config_path
+conf = configparser.ConfigParser()
+conf.read(config_path, encoding='utf-8')
 
 app = Flask(__name__)
 swagger = Swagger(app, template=template)
-
 # app.config["SESSION_PERMANENT"] = False
 # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
 # app.config["SESSION_TYPE"] = "filesystem"
+fh = logging.FileHandler(args.log_path)
+fh.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+
+logger.addHandler(console_handler)
+logger.addHandler(fh)
+
 
 save_folder = 'uploaded'
 
@@ -29,34 +48,23 @@ try:
 except:
 	pass
 
-rag_chain = None
-
 #####################
 
 @app.route("/doc_input", methods=['POST'])
 def doc_input():
     start = time.time()
     data = request.get_json()
-    # print(data['text'])
     save_path = os.path.join(save_folder, data['filename']+".txt")
     try:
         with open(save_path, mode='w') as w:
             w.write(data['text'])
-        if os.path.exists('./uploaded/share.txt'):
-            with open('./uploaded/share.txt', mode='a') as w:
-                w.write(data['text'])
-        else:
-            # os.system("touch ./uploaded/share.txt")
-            with open('./uploaded/share.txt', mode='w') as w:
-                w.write(data['text'])
-
         logger.info(f"Save text status: Save Success")
         logger.info(f"Save path: {save_path}")
     except Exception as e:
         logger.info(f"Save text Error: {e}")
 
     # try:
-    rag_chain =  build_rag_chain_from_doc(save_path, data['filename'], data['text'])
+    rag_chain =  build_rag_chain_from_text(token_name=data['filename'], text=data['text'], conf=conf)
 
     logger.info(f"Save chromadb status: Save Success")
     logger.info(f"Save name: {data['filename']}")
@@ -71,18 +79,22 @@ def doc_input():
 def qa_from_doc():
     start = time.time()
     data = request.get_json()
-    question = data['question']
+    print(f"data: {data}")
+    new_question = data['question']
     text_name = data['filename']
+    try:
+        history_qa = data['messages']
+    except:
+        history_qa = []
+    question = ''
+    for i in history_qa:
+        if i['role'] == 'user':
+            question += i['content'] + '\n'
+    question += new_question
     logger.info(f"Question: {question}")
 
-    # if question == "What actions should be done to maintain the Running time in Motor Driven Actuators?" or "What actions should be done to maintain the Running time in Motor Driven Actuators?" in question:
-    #     time.sleep(2)
-    #     response = "To maintain the running time in motor-driven actuators, you should check them every 12 months.The specific actions required for maintenance may vary depending on the manufacturer's recommendations."
-    #     fragment = "Running time (if applicable) in Motor Driven Actuators\n\nAccording to SFG 00-01 Running time (if applicable) in Motor Driven Actuators is of amber criticality and requires maintenance every 12 months. The action required for maintenance is to: Check. Notes: See manufacturer's recommendations."
-    #     return {"response": response, "fragment": fragment, "score": 0.98564369 "status": "Success!", "running_time": float(time.time() - start)}
-
     # try:
-    response, fragment, score, document_name = answer_from_doc(text_name, question)
+    response, fragment, score, document_name = answer_from_doc(text_name, question, conf)
     logger.info(f"Question Response: {response}")
     if response == "I don't know" or "I don't know" in response:
         response = "I’m sorry I currently do not have an answer to that question, please rephrase or ask me another question." 
@@ -94,6 +106,5 @@ def qa_from_doc():
 
 
 #######################
-
 if __name__=="__main__":
-    app.run(port=3274, host="0.0.0.0", debug=False)
+    app.run(port=args.port, host="0.0.0.0", debug=False)
