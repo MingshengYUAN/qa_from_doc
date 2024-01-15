@@ -8,6 +8,12 @@ from utils import embedding_function
 import torch
 from tqdm import tqdm
 from log_info import logger
+from numpy.linalg import norm
+import configparser
+from share_args import ShareArgs
+conf = configparser.ConfigParser()
+conf.read(ShareArgs.args['config_path'], encoding='utf-8')
+
 torch.backends.cudnn.enabled = False
 
 stanza.download('en')
@@ -18,7 +24,6 @@ nlp = stanza.Pipeline('en',processors='tokenize',device = "cuda:0")
 
 def document_split(
 	document_content,
-	conf,
 	fragment_window_size = 5,
 	fragment_step_size = 4,
 	sentence_left_context_size = 2,
@@ -231,12 +236,36 @@ def document_split(
 
 ###########
 
-def document_embedding(token_name, documents, conf, batch_size = 100):
+def document_embedding(token_name, documents, batch_size = 100):
 
 	fragement_num = conf.get("fragement", "fragement_num")
 
 	batch_num = len(documents)/batch_size
 	j = 0
+
+	texts = []
+	for i in tqdm(documents):
+		texts.append(i['searchable_text'])
+	embedding_vectors = embedding_function.encode(texts).tolist()
+	for r in documents:
+		r['searchable_text_embedding'] = embedding_vectors[j]
+		r['id'] = token_name + "|__|" + str(j)
+		j += 1
+
+	return documents
+
+def get_score(fragements, question):
+	question_embedding = embedding_function.encode(question).tolist()
+	similarity = 0
+	for i in fragements:
+		tmp = embedding_function.encode(i).tolist()
+		similarity += np.dot(tmp,question_embedding)/(norm(tmp)*norm(question_embedding))
+	return similarity/len(fragements)
+
+###########
+
+# document_embedding
+
 	# print(f"document length !!!{len(documents)}")
 	# for i in tqdm(range(int(batch_num)+1), desc='embedding part'):
 	# 	try:
@@ -251,16 +280,6 @@ def document_embedding(token_name, documents, conf, batch_size = 100):
 	# 			j += 1
 	# 	except:
 	# 		pass
-	texts = []
-	for i in tqdm(documents):
-		texts.append(i['searchable_text'])
-	embedding_vectors = embedding_function.encode(texts).tolist()
-	for r in documents:
-		r['searchable_text_embedding'] = embedding_vectors[j]
-		r['id'] = token_name + "|__|" + str(j)
-		j += 1
-
-	return documents
 
 ###########
 

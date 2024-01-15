@@ -4,7 +4,7 @@ logger = logging.getLogger('root')
 logger.setLevel(logging.INFO)
 
 # 创建FileHandler对象
-fh = logging.FileHandler('qa_from_doc.log')
+fh = logging.FileHandler('./log/qa_from_doc_init.log')
 fh.setLevel(logging.INFO)
 
 #

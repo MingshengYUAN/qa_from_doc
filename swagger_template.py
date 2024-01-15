@@ -46,6 +46,45 @@ template = {
         }
       }
     },
+    "/qa_search": {
+      "post": {
+        "tags": [
+          "qa_search"
+        ],
+        "summary": "Find the most similar QA pairs",
+        "description": "",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "token_name",
+            "in": "formData",
+            "description": "User questions",
+            "required": True,
+            "type": "list"
+          },
+          {
+            "name": "token_name",
+            "in": "formData",
+            "description": "Specific token name for the excel or the task",
+            "required": True,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
     "/qa_from_doc": {
       "post": {
         "tags": [
@@ -75,6 +114,43 @@ template = {
             "description": "Answer",
             "schema": {
               "$ref": "#/definitions/answer"
+            }
+          }
+        }
+      }
+    },
+    "/empty_collection": {
+      "post": {
+        "tags": [
+          "empty_collection"
+        ],
+        "summary": "Empty selected collections or all collections",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Given token name or leave empty will empty all collections",
+            "required": True,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/collection_name"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
             }
           }
         }
@@ -204,6 +280,10 @@ template = {
           "type": "string"
         }
       }
-    }
+    },
+    "collection_name": {
+      "type": "string",
+      "example": "test"
+    },
   }
 }
